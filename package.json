@@ -1,0 +1,45 @@
+{
+  "name": "@randajan/sleep",
+  "version": "0.0.1",
+  "description": "Tiny async utilities for timeout and sleep using native Promises.",
+  "repository": "randajan/sleep",
+  "type": "module",
+  "main": "dist/cjs/index.cjs",
+  "module": "dist/esm/index.mjs",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.mjs",
+      "require": "./dist/cjs/index.cjs"
+    }
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@randajan/simple-lib": "^3.0.2"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "timeout",
+    "sleep",
+    "delay",
+    "promise",
+    "async",
+    "utility",
+    "minimal",
+    "tiny",
+    "javascript",
+    "timer"
+  ],
+  "homepage": "https://github.com/randajan/sleep",
+  "bugs": {
+    "url": "https://github.com/randajan/sleep/issues"
+  },
+  "author": {
+    "name": "Jan Randa",
+    "email": "jnranda@gmail.com",
+    "url": "https://www.linkedin.com/in/randajan/"
+  }
+}
