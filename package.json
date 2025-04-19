@@ -1,6 +1,6 @@
 {
   "name": "@randajan/sleep",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Tiny async utilities for timeout and sleep using native Promises.",
   "repository": "randajan/sleep",
   "type": "module",
