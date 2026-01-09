@@ -127,10 +127,10 @@
   resolved "https://registry.yarnpkg.com/@esbuild/win32-x64/-/win32-x64-0.25.2.tgz#839f72c2decd378f86b8f525e1979a97b920c67d"
   integrity sha512-kM3HKb16VIXZyIeVrM1ygYmZBKybX8N4p754bw390wGO3Tf2j4L2/WYL+4suWujpgf6GBYs3jv7TyUivdd05JA==
 
-"@randajan/simple-lib@^3.0.2":
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/@randajan/simple-lib/-/simple-lib-3.0.2.tgz#3b685e18c94aaacaa39f093ffb9f0c7ff380c350"
-  integrity sha512-Qgt3/RhPIOUlH4Vst5Ak6uXCvl4wZuRh770aOCDZDNiL8vVTih6dYnAPcppOnIKnHaVgv3TgThxLankxYvS7JA==
+"@randajan/simple-lib@^3.3.0":
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/@randajan/simple-lib/-/simple-lib-3.3.0.tgz#8005fde3d48583f8e9f6f9984c98416046d0439c"
+  integrity sha512-larINB1cyuej5+gG/LrUaIEFxHHvYUOY/I49jUpuweCIUfFVTDUHYkN49LblXwrRzp89IDf6sCGf+5or9alP7w==
   dependencies:
     app-root-path "^3.1.0"
     chalk "^5.3.0"

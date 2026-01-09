@@ -17,7 +17,7 @@ npm install @randajan/sleep
 ## Usage
 
 ```js
-import { sleep, timeout, prolong } from "@randajan/sleep";
+import { sleep, timeout, prolong, withTimeout } from "@randajan/sleep";
 
 // Wait 500ms and resolve with "done"
 await sleep(500, "done");
@@ -30,6 +30,9 @@ await prolong(1000, true, "OK");
 
 // Wait 1000ms and reject with custom error
 await prolong(1000, false, new Error("Custom timeout"));
+
+// Wrap any promise and reject if it does not resolve in time
+await withTimeout(fetch(url), 2000);
 ```
 
 ## API
@@ -42,6 +45,9 @@ Rejects `error` after `ms` milliseconds (default: `new Error("Timeout")`).
 
 ### `prolong(ms, ok, result)`
 Resolves (if `ok` is `true`) or rejects (if `false`) with `result` after `ms` milliseconds.
+
+### `withTimeout(promise, ms, error)`
+Resolves or rejects with `promise`, but rejects with `error` after `ms` milliseconds.
 
 
 ## License
