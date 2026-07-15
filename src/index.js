@@ -114,6 +114,7 @@ export const delay = (ms, options={})=>{
 export const timeout = (ms, options={})=>delay(ms, {
     ...options,
     isOk:false,
+    unref:options.unref ?? true,
     error:options.error ?? new Error("Timeout"),
 });
 
