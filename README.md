@@ -2,7 +2,7 @@
 
 [![NPM](https://img.shields.io/npm/v/@randajan/postcss-extra-units.svg)](https://www.npmjs.com/package/@randajan/postcss-extra-units)
 
-A PostCSS plugin for replacing custom CSS units with values calculated by JavaScript callbacks. Includes an optional esbuild adapter.
+A PostCSS plugin for replacing custom CSS units with values calculated by JavaScript callbacks. It is especially useful for generating complex `calc(...)` expressions from concise dimensions and includes an optional esbuild adapter.
 
 ## Installation
 
@@ -20,7 +20,7 @@ import extraUnits from "@randajan/postcss-extra-units";
 
 const units = {
     rpx:value => `${value / 16}rem`,
-    grid:value => `${value * 8}px`,
+    grid:value => `calc(${value} * var(--grid-size))`,
 };
 
 const input = `
@@ -44,9 +44,40 @@ The result is:
 ```css
 @media (width >= 20rem) {
     .card {
-        width: 160px;
+        width: calc(20 * var(--grid-size));
         margin: 1rem;
     }
+}
+```
+
+### Complex calculations
+
+The callback can return any complete CSS value, not just another dimension. This makes custom units a compact way to generate calculations involving custom properties and multiple operations:
+
+```js
+const units = {
+    grid:value => `calc(${value} * var(--grid-size))`,
+    fluid:value => `calc(
+        ${value} * var(--fluid-scale)
+        + var(--fluid-offset)
+    )`,
+};
+```
+
+```css
+/* Input */
+.card {
+    width: 12grid;
+    padding: 2fluid;
+}
+
+/* Output */
+.card {
+    width: calc(12 * var(--grid-size));
+    padding: calc(
+        2 * var(--fluid-scale)
+        + var(--fluid-offset)
+    );
 }
 ```
 
