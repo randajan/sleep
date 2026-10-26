@@ -1,18 +1,25 @@
 {
-  "name": "@randajan/sleep",
-  "version": "1.0.2",
-  "description": "Tiny async utilities for timeout and sleep using native Promises.",
-  "repository": "randajan/sleep",
+  "name": "@randajan/postcss-extra-units",
+  "version": "1.0.0",
+  "description": "PostCSS plugin for transforming custom CSS units, with an esbuild adapter.",
+  "repository": "randajan/postcss-extra-units",
   "scripts": {
     "build": "node index isBuild=true"
   },
   "type": "module",
   "main": "dist/cjs/index.cjs",
   "module": "dist/esm/index.mjs",
+  "types": "dist/types/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/types/index.d.ts",
       "import": "./dist/esm/index.mjs",
       "require": "./dist/cjs/index.cjs"
+    },
+    "./esbuild": {
+      "types": "./dist/types/esbuild.d.ts",
+      "import": "./dist/esm/esbuild.mjs",
+      "require": "./dist/cjs/esbuild.cjs"
     }
   },
   "license": "MIT",
@@ -25,24 +32,24 @@
     "LICENSE"
   ],
   "keywords": [
-    "timeout",
-    "sleep",
-    "delay",
-    "promise",
-    "async",
-    "utility",
-    "minimal",
-    "tiny",
-    "javascript",
-    "timer"
+    "postcss",
+    "postcss-plugin",
+    "css",
+    "custom-units",
+    "units",
+    "esbuild"
   ],
-  "homepage": "https://github.com/randajan/sleep",
+  "homepage": "https://github.com/randajan/postcss-extra-units",
   "bugs": {
-    "url": "https://github.com/randajan/sleep/issues"
+    "url": "https://github.com/randajan/postcss-extra-units/issues"
   },
   "author": {
     "name": "Jan Randa",
     "email": "jnranda@gmail.com",
     "url": "https://www.linkedin.com/in/randajan/"
+  },
+  "dependencies": {
+    "postcss": "^8.5.31",
+    "postcss-value-parser": "^4.2.0"
   }
 }
