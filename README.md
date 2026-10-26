@@ -1,178 +1,129 @@
-# @randajan/postcss-extra-units
+# @randajan/sleep
 
-[![NPM](https://img.shields.io/npm/v/@randajan/postcss-extra-units.svg)](https://www.npmjs.com/package/@randajan/postcss-extra-units)
+[![NPM](https://img.shields.io/npm/v/@randajan/sleep.svg)](https://www.npmjs.com/package/@randajan/sleep) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
-A PostCSS plugin for replacing custom CSS units with values calculated by JavaScript callbacks. It is especially useful for generating complex `calc(...)` expressions from concise dimensions and includes an optional esbuild adapter.
+
+Tiny async utilities for timeout and sleep using native Promises.
+
+_I was tired of writing it again and again_
+
 
 ## Installation
 
 ```bash
-npm install @randajan/postcss-extra-units
+npm install @randajan/sleep
 ```
 
 ## Usage
 
-Define a callback for every custom unit. Each callback receives the numeric part of the CSS dimension and returns its complete replacement.
-
 ```js
-import postcss from "postcss";
-import extraUnits from "@randajan/postcss-extra-units";
+import { sleep, timeout, delay, withAbort, withTimeout, withProlong, isAbortSignal } from "@randajan/sleep";
 
-const units = {
-    rpx:value => `${value / 16}rem`,
-    grid:value => `calc(${value} * var(--grid-size))`,
-};
+// Wait 500ms and resolve with "done"
+await sleep(500, { result:"done" });
 
-const input = `
-    @media (width >= 320rpx) {
-        .card {
-            width:20grid;
-            margin:16rpx;
-        }
-    }
-`;
+// Wait 500ms and reject with "Timeout"
+await timeout(500);
 
-const result = await postcss([extraUnits(units)]).process(input, {
-    from:undefined,
-});
+// Wait 1000ms and resolve with "OK"
+await delay(1000, { isOk:true, result:"OK" });
 
-console.log(result.css);
-```
+// Wait 1000ms and reject with custom error
+await delay(1000, { isOk:false, error:new Error("Custom timeout") });
 
-The result is:
+// Abort a pending sleep
+const controller = new AbortController();
+const pending = sleep(1000, { signal:controller.signal });
+controller.abort();
+await pending.catch(error=>error);
 
-```css
-@media (width >= 20rem) {
-    .card {
-        width: calc(20 * var(--grid-size));
-        margin: 1rem;
-    }
-}
-```
+// Wrap any promise and reject when a signal aborts
+await withAbort(fetch(url), { signal:controller.signal });
 
-### Complex calculations
+// Wrap any promise and reject if it does not resolve in time
+await withTimeout(fetch(url), 2000, { error:new Error("Too slow") });
 
-The callback can return any complete CSS value, not just another dimension. This makes custom units a compact way to generate calculations involving custom properties and multiple operations:
+// Wrap any promise and delay its output for at least 500ms
+await withProlong(fetch(url), 500);
 
-```js
-const units = {
-    grid:value => `calc(${value} * var(--grid-size))`,
-    fluid:value => `calc(
-        ${value} * var(--fluid-scale)
-        + var(--fluid-offset)
-    )`,
-};
-```
+// Keep a loading animation aligned to 250ms steps
+await withProlong(fetch(url), 250, { align:250 });
 
-```css
-/* Input */
-.card {
-    width: 12grid;
-    padding: 2fluid;
-}
+// Do not keep a Node.js process alive just because of this timer
+const detached = sleep(500, { result:"done", unref:true });
 
-/* Output */
-.card {
-    width: calc(12 * var(--grid-size));
-    padding: calc(
-        2 * var(--fluid-scale)
-        + var(--fluid-offset)
-    );
-}
-```
-
-### PostCSS configuration
-
-```js
-// postcss.config.js
-import extraUnits from "@randajan/postcss-extra-units";
-
-export default {
-    plugins:[
-        extraUnits({
-            rpx:value => `${value / 16}rem`,
-        }),
-    ],
-};
-```
-
-### esbuild
-
-Import the adapter from the `./esbuild` entrypoint:
-
-```js
-import { build } from "esbuild";
-import { extraUnitsEsbuild } from "@randajan/postcss-extra-units/esbuild";
-
-await build({
-    entryPoints:["src/index.js"],
-    bundle:true,
-    outdir:"dist",
-    plugins:[
-        extraUnitsEsbuild({
-            rpx:value => `${value / 16}rem`,
-        }),
-    ],
-});
-```
-
-The adapter processes `.css` files with esbuild's `css` loader and `.module.css` files with its `local-css` loader.
-
-It also exposes its CSS transformer for direct use:
-
-```js
-const plugin = extraUnitsEsbuild({
-    rpx:value => `${value / 16}rem`,
-});
-
-const css = await plugin.transform(".card { width:160rpx }", "card.css");
+// Validate an AbortSignal-shaped value
+isAbortSignal(controller.signal);
 ```
 
 ## API
 
-### `extraUnits(units?)`
+### `sleep(ms, options)`
+Resolves `result` after `ms` milliseconds.
 
-Creates a PostCSS plugin.
+Options:
+- `result` - value used to resolve the promise.
+- `signal` - optional `AbortSignal` used to abort the timer.
+- `unref` - calls Node.js `timer.unref()` when available (default: `false`).
 
-`units` is an object whose keys are case-sensitive CSS unit names and whose values are conversion callbacks:
+### `timeout(ms, options)`
+Rejects `error` after `ms` milliseconds.
 
-```ts
-type ExtraUnitConverter = (value: number) => string | number;
-type ExtraUnits = Readonly<Record<string, ExtraUnitConverter>>;
-```
+Options:
+- `error` - value used to reject the promise (default: `new Error("Timeout")`).
+- `signal` - optional `AbortSignal` used to abort the timer.
+- `unref` - calls Node.js `timer.unref()` when available (default: `false`).
 
-The plugin transforms matching dimensions in:
+### `delay(ms, options)`
+Resolves or rejects after `ms` milliseconds.
 
-- declaration values;
-- `@media` parameters;
-- `@supports` parameters;
-- `@container` parameters.
+Options:
+- `isOk` - resolves when `true`, rejects when `false` (default: `true`).
+- `result` - value used to resolve the promise.
+- `error` - value used to reject the promise.
+- `signal` - optional `AbortSignal` used to abort the timer.
+- `unref` - calls Node.js `timer.unref()` when available (default: `false`).
 
-Values inside `url(...)` are left unchanged. If a configured unit does not contain a function callback, plugin creation throws a `TypeError`.
+### `withTimeout(promise, ms, options)`
+Resolves or rejects with `promise`, but rejects with `error` after `ms` milliseconds.
+The internal timeout is aborted when `promise` settles.
 
-### `extraUnitsEsbuild(units?)`
+Options:
+- `error` - value used to reject the timeout promise (default: `new Error("Timeout")`).
+- `signal` - optional `AbortSignal` used to abort the promise wrapper.
+- `unref` - calls Node.js `timer.unref()` when available (default: `true`).
 
-Creates an esbuild plugin using the same unit configuration. The returned plugin also provides:
+### `withAbort(promise, options)`
+Resolves or rejects with `promise`, but rejects with the abort reason when `signal` aborts first.
 
-```ts
-transform(css: string, from?: string): Promise<string>;
-```
+Options:
+- `signal` - optional `AbortSignal` used to abort the promise wrapper.
 
-## TypeScript
+### `withProlong(promise, ms, options)`
+Resolves or rejects with `promise`, but never sooner than after `ms` milliseconds.
+Resolve, reject, and abort output are delayed. The original rejection wins over a later abort.
+When `align` is provided, output is delayed to the nearest next multiple of `align` milliseconds.
 
-Type declarations are included for both public entrypoints:
+Options:
+- `align` - aligns output to the next multiple of this many milliseconds.
+- `signal` - optional `AbortSignal` used to abort the promise wrapper.
+- `unref` - calls Node.js `timer.unref()` when available (default: `false`).
 
-```ts
-import extraUnits, {
-    type ExtraUnitConverter,
-    type ExtraUnits,
-} from "@randajan/postcss-extra-units";
+### `isAbortSignal(value)`
+Returns `true` when `value` looks like an `AbortSignal`.
 
-import {
-    extraUnitsEsbuild,
-    type ExtraUnitsEsbuildPlugin,
-} from "@randajan/postcss-extra-units/esbuild";
-```
+### `asAbortSignal(value, throwError)`
+Returns `value` when it looks like an `AbortSignal`; otherwise returns `undefined`.
+When `throwError` is `true`, invalid values throw `TypeError`.
+
+### `inheritSignal(signal)`
+Creates a child `AbortSignal` that inherits aborts from `signal`.
+
+Returns:
+- `signal` - the child `AbortSignal`.
+- `abort(reason)` - aborts the child signal.
+- `stop()` - removes the inherited abort listener.
+
 
 ## License
 

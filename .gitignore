@@ -2,4 +2,3 @@ node_modules
 demo/build
 demo/data
 dist
-.vscode/.bash_history
